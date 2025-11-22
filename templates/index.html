@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>レシピ投稿ミニアプリ</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>レシピ投稿ミニアプリ</h1>
+  <p>「タイトル」「所要分数」「説明」を入力して投稿してください。</p>
+
+  {% if not db_ready %}
+    <div class="notice">
+      <strong>DB未設定：</strong> 環境変数 <code>DATABASE_URL</code> を設定してください。
+    </div>
+  {% endif %}
+
+  {% if errors %}
+    <div class="errors">
+      <strong>入力エラーがあります：</strong>
+      <ul>
+        {% for e in errors %}
+        <li>{{ e }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('index') }}">
+    <label>タイトル</label>
+    <input name="title" type="text" maxlength="200" required value="{{ form_values.title }}">
+
+    <label>所要分数</label>
+    <input name="minutes" type="number" step="1" min="1" required value="{{ form_values.minutes }}">
+
+    <label>説明</label>
+    <textarea name="description">{{ form_values.description }}</textarea>
+
+    <button class="btn" type="submit">投稿する</button>
+  </form>
+
+  <h2>レシピ一覧</h2>
+  <div class="list">
+    {% if recipes %}
+      {% for r in recipes %}
+        <div class="card">
+          <strong>{{ r.title }}</strong>
+          <div class="meta">
+            所要分数: {{ r.minutes }} 分 / 投稿日時(UTC): {{ r.created_at }}
+          </div>
+          {% if r.description %}
+            <div class="desc">{{ r.description }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">投稿はまだありません。</div>
+    {% endif %}
+  </div>
+
+  <footer>
+    <code>DEBUG={{ debug|lower }}</code> / <code>PORT={{ port }}</code>
+  </footer>
+</body>
+</html>
