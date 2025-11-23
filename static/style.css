@@ -1,3 +1,4 @@
+/* 既存スタイル（そのまま） */
 body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
   margin: 2rem;
@@ -25,10 +26,30 @@ h1 {
   margin: 1rem 0;
 }
 
+/* ▼▼ 2カラムコンテナ ▼▼ */
+.container {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* 左右のカラム */
+.column {
+  flex: 1;
+}
+
+.left {
+  max-width: 450px;
+}
+
+.right {
+  flex: 1.5;
+}
+
+/* ▼フォーム周り */
 form {
   display: grid;
   gap: 0.75rem;
-  max-width: 520px;
   margin: 1rem 0 2rem;
 }
 
@@ -58,6 +79,7 @@ textarea {
   background: #0757b3;
 }
 
+/* ▼レシピカード */
 .list {
   margin-top: 1rem;
 }
@@ -80,8 +102,16 @@ textarea {
   color: #666;
 }
 
+/* ▼フッター */
 footer {
   margin-top: 2rem;
   color: #666;
   font-size: 0.9rem;
+}
+
+/* ▼レスポンシブ対応：スマホでは縦並び */
+@media (max-width: 800px) {
+  .container {
+    flex-direction: column;
+  }
 }

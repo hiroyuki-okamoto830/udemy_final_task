@@ -27,37 +27,50 @@
     </div>
   {% endif %}
 
-  <form method="post" action="{{ url_for('index') }}">
-    <label>タイトル</label>
-    <input name="title" type="text" maxlength="200" required value="{{ form_values.title }}">
+  <!-- ▼▼ 2カラムレイアウト開始 ▼▼ -->
+  <div class="container">
+    <!-- 左：投稿フォーム -->
+    <div class="column left">
+      <h2>新規投稿</h2>
 
-    <label>所要分数</label>
-    <input name="minutes" type="number" step="1" min="1" required value="{{ form_values.minutes }}">
+      <form method="post" action="{{ url_for('index') }}">
+        <label>タイトル</label>
+        <input name="title" type="text" maxlength="200" required value="{{ form_values.title }}">
 
-    <label>説明</label>
-    <textarea name="description">{{ form_values.description }}</textarea>
+        <label>所要分数</label>
+        <input name="minutes" type="number" step="1" min="1" required value="{{ form_values.minutes }}">
 
-    <button class="btn" type="submit">投稿する</button>
-  </form>
+        <label>説明</label>
+        <textarea name="description">{{ form_values.description }}</textarea>
 
-  <h2>レシピ一覧</h2>
-  <div class="list">
-    {% if recipes %}
-      {% for r in recipes %}
-        <div class="card">
-          <strong>{{ r.title }}</strong>
-          <div class="meta">
-            所要分数: {{ r.minutes }} 分 / 投稿日時(UTC): {{ r.created_at }}
-          </div>
-          {% if r.description %}
-            <div class="desc">{{ r.description }}</div>
-          {% endif %}
-        </div>
-      {% endfor %}
-    {% else %}
-      <div class="empty">投稿はまだありません。</div>
-    {% endif %}
+        <button class="btn" type="submit">投稿する</button>
+      </form>
+    </div>
+
+    <!-- 右：レシピ一覧 -->
+    <div class="column right">
+      <h2>レシピ一覧</h2>
+
+      <div class="list">
+        {% if recipes %}
+          {% for r in recipes %}
+            <div class="card">
+              <strong>{{ r.title }}</strong>
+              <div class="meta">
+                所要分数: {{ r.minutes }} 分 / 投稿日時(UTC): {{ r.created_at }}
+              </div>
+              {% if r.description %}
+                <div class="desc">{{ r.description }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty">投稿はまだありません。</div>
+        {% endif %}
+      </div>
+    </div>
   </div>
+  <!-- ▲▲ 2カラムレイアウト終了 ▲▲ -->
 
   <footer>
     <code>DEBUG={{ debug|lower }}</code> / <code>PORT={{ port }}</code>
