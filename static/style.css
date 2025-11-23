@@ -22,7 +22,42 @@ body {
   width: 60%;
 }
 
-/* カード */
+/* ▼ 投稿フォームの入力 UI を縦揃えにする ----------- */
+.column.left form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.column.left label {
+  font-weight: bold;
+}
+
+.column.left input[type="text"],
+.column.left input[type="number"],
+.column.left textarea {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.column.left textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+/* 投稿ボタン */
+.column.left .btn {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* ▼ カード */
 .card {
   border: 1px solid #ddd;
   padding: 1rem;
