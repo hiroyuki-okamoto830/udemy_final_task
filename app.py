@@ -4,26 +4,29 @@ import os
 from datetime import datetime
 from typing import Optional, List
 
-from dotenv import load_dotenv
 from flask import Flask, request, redirect, url_for, render_template
 from sqlalchemy import (
     create_engine, String, Integer, Text, DateTime, CheckConstraint, func
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, Session
 
-load_dotenv()
+# -------------------------------------------------
+#  ★ db_init.py と同じ DB URL に固定（ここが重要）
+# -------------------------------------------------
+DATABASE_URL = (
+    "postgresql+psycopg2://"
+    "recipe_db_r1sy_user:moSDmM1OnrmIA6vSS4j0JzLwIi92zpEP@"
+    "dpg-d4h4536mcj7s73bq129g-a.singapore-postgres.render.com/"
+    "recipe_db_r1sy"
+    "?sslmode=require"
+)
 
-def get_database_url() -> Optional[str]:
-    url = os.environ.get("DATABASE_URL")
-    if url and url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql+psycopg2://", 1)
-    return url
+engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
-DATABASE_URL = get_database_url()
-engine = create_engine(DATABASE_URL, pool_pre_ping=True) if DATABASE_URL else None
 
 class Base(DeclarativeBase):
     pass
+
 
 class Recipe(Base):
     __tablename__ = "recipes"
@@ -39,15 +42,11 @@ class Recipe(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-if engine is not None:
-    Base.metadata.create_all(engine)
+
+# テーブル作成
+Base.metadata.create_all(engine)
 
 app = Flask(__name__)
-
-def _to_bool_env(value: Optional[str], default: bool = False) -> bool:
-    if value is None:
-        return default
-    return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -76,22 +75,24 @@ def index():
         if not title:
             errors.append("タイトルは必須です。")
 
-        if engine is None:
-            errors.append("データベースが未設定のため保存できません。")
-
         if not errors:
             with Session(engine) as session:
-                item = Recipe(title=title, minutes=minutes_val, description=description)
+                item = Recipe(
+                    title=title,
+                    minutes=minutes_val,
+                    description=description
+                )
                 session.add(item)
                 session.commit()
             return redirect(url_for("index"))
 
     recipes: List[Recipe] = []
-    if engine is not None:
-        with Session(engine) as session:
-            recipes = session.query(Recipe).order_by(
-                Recipe.created_at.desc(), Recipe.id.desc()
-            ).all()
+    with Session(engine) as session:
+        recipes = (
+            session.query(Recipe)
+            .order_by(Recipe.created_at.desc(), Recipe.id.desc())
+            .all()
+        )
 
     return render_template(
         "index.html",
@@ -99,7 +100,7 @@ def index():
         recipes=recipes,
         debug="false",
         port=8000,
-        db_ready=(engine is not None),
+        db_ready=True,
         form_values=form_values,
     )
 
@@ -107,9 +108,6 @@ def index():
 # ▼ 編集処理
 @app.route("/update/<int:recipe_id>", methods=["POST"])
 def update_recipe(recipe_id: int):
-    if engine is None:
-        return redirect(url_for("index"))
-
     title = (request.form.get("title") or "").strip()
     minutes_raw = (request.form.get("minutes") or "").strip()
     description = (request.form.get("description") or "").strip()
@@ -136,9 +134,6 @@ def update_recipe(recipe_id: int):
 # ▼ 削除処理
 @app.route("/delete/<int:recipe_id>", methods=["POST"])
 def delete_recipe(recipe_id: int):
-    if engine is None:
-        return redirect(url_for("index"))
-
     with Session(engine) as session:
         item = session.get(Recipe, recipe_id)
         if item:
