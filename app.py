@@ -123,6 +123,23 @@ def index():
         form_values=form_values,
     )
 
+# ▼ 削除処理を追加
+@app.route("/delete/<int:recipe_id>", methods=["POST"])
+def delete_recipe(recipe_id: int):
+    if engine is None:
+        return redirect(url_for("index"))
+
+    try:
+        with Session(engine) as session:
+            item = session.get(Recipe, recipe_id)
+            if item:
+                session.delete(item)
+                session.commit()
+    except Exception:
+        pass
+
+    return redirect(url_for("index"))
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
     debug = _to_bool_env(os.environ.get("DEBUG"), default=False)

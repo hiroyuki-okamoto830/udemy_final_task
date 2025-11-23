@@ -33,10 +33,7 @@ h1 {
   margin-top: 1.5rem;
 }
 
-/* 左右のカラム */
-.column {
-  flex: 1;
-}
+.column { flex: 1; }
 
 .left {
   max-width: 450px;
@@ -90,6 +87,28 @@ textarea {
   padding: 1rem;
   margin: 0.5rem 0;
   background: #fff;
+}
+
+/* カードヘッダー（タイトル & 削除ボタン） */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ▼削除ボタン */
+.btn-delete {
+  background: #d9534f;
+  color: #fff;
+  padding: 0.4rem 0.7rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #c9302c;
 }
 
 .meta {
