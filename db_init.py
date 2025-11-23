@@ -1,15 +1,11 @@
 from sqlalchemy import create_engine, text
+import os
 
-# ←←← ここにあなたのDB URLをベタ書きします
-DATABASE_URL = (
-    "postgresql+psycopg2://"
-    "recipe_db_r1sy_user:moSDmM1OnrmIA6vSS4j0JzLwIi92zpEP@"
-    "dpg-d4h4536mcj7s73bq129g-a.singapore-postgres.render.com/"
-    "recipe_db_r1sy"
-    "?sslmode=require"
-)
+# --- app.py と同じく環境変数 DATABASE_URL を使用 ---
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
 
-# エンジンを作成
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
 
 # アプリと同じ構造のテーブルを作るSQL
@@ -32,10 +28,8 @@ VALUES
 """
 
 with engine.begin() as conn:
-    # テーブル作成（IF NOT EXISTSなので2回目以降も安全）
     conn.execute(text(schema_sql))
 
-    # もうデータが入ってるなら追加しない
     count = conn.execute(text("SELECT COUNT(*) FROM recipes;")).scalar_one()
     if count == 0:
         conn.execute(
@@ -50,4 +44,4 @@ with engine.begin() as conn:
             ),
         )
 
-print("OK: テーブル作成と初期データ投入まで完了しました。")
+print("OK: 初期テーブル作成とデータ投入が完了しました。")
