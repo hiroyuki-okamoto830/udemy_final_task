@@ -7,82 +7,122 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <h1>レシピ投稿ミニアプリ</h1>
-  <p>「タイトル」「所要分数」「説明」を入力して投稿してください。</p>
 
-  {% if not db_ready %}
-    <div class="notice">
-      <strong>DB未設定：</strong> 環境変数 <code>DATABASE_URL</code> を設定してください。
-    </div>
-  {% endif %}
+<h1>レシピ投稿ミニアプリ</h1>
+<p>「タイトル」「所要分数」「説明」を入力して投稿してください。</p>
 
-  {% if errors %}
-    <div class="errors">
-      <strong>入力エラーがあります：</strong>
-      <ul>
-        {% for e in errors %}
-        <li>{{ e }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %}
+{% if errors %}
+  <div class="errors">
+    <strong>入力エラーがあります：</strong>
+    <ul>
+      {% for e in errors %}
+      <li>{{ e }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
 
-  <!-- ▼▼ 2カラムレイアウト開始 ▼▼ -->
-  <div class="container">
-    <!-- 左：投稿フォーム -->
-    <div class="column left">
-      <h2>新規投稿</h2>
+<div class="container">
 
-      <form method="post" action="{{ url_for('index') }}">
-        <label>タイトル</label>
-        <input name="title" type="text" maxlength="200" required value="{{ form_values.title }}">
+  <!-- ▼左：通常の投稿フォーム -->
+  <div class="column left">
+    <h2>新規投稿</h2>
 
-        <label>所要分数</label>
-        <input name="minutes" type="number" step="1" min="1" required value="{{ form_values.minutes }}">
+    <form method="post" action="{{ url_for('index') }}">
+      <label>タイトル</label>
+      <input name="title" type="text" maxlength="200" required value="{{ form_values.title }}">
 
-        <label>説明</label>
-        <textarea name="description">{{ form_values.description }}</textarea>
+      <label>所要分数</label>
+      <input name="minutes" type="number" min="1" required value="{{ form_values.minutes }}">
 
-        <button class="btn" type="submit">投稿する</button>
-      </form>
-    </div>
+      <label>説明</label>
+      <textarea name="description">{{ form_values.description }}</textarea>
 
-    <!-- 右：レシピ一覧 -->
-    <div class="column right">
-      <h2>レシピ一覧</h2>
+      <button class="btn" type="submit">投稿する</button>
+    </form>
+  </div>
 
-      <div class="list">
-        {% if recipes %}
-          {% for r in recipes %}
-            <div class="card">
-              <div class="card-header">
-                <strong>{{ r.title }}</strong>
+  <!-- ▼右：レシピ一覧 -->
+  <div class="column right">
+    <h2>レシピ一覧</h2>
 
-                <!-- ▼削除ボタン -->
-                <form method="post" action="{{ url_for('delete_recipe', recipe_id=r.id) }}">
-                  <button class="btn-delete" type="submit">削除</button>
-                </form>
-              </div>
+    <div class="list">
+      {% if recipes %}
+        {% for r in recipes %}
+        <div class="card">
 
-              <div class="meta">
-                所要分数: {{ r.minutes }} 分 / 投稿日時(UTC): {{ r.created_at }}
-              </div>
+          <div class="card-header">
+            <strong>{{ r.title }}</strong>
 
-              {% if r.description %}
-                <div class="desc">{{ r.description }}</div>
-              {% endif %}
+            <div class="actions">
+              <!-- 編集ボタン -->
+              <button class="btn-edit"
+                onclick="openEditModal('{{ r.id }}', '{{ r.title }}', '{{ r.minutes }}', `{{ r.description or '' }}`)">
+                編集
+              </button>
+
+              <!-- 削除 -->
+              <form method="post" action="{{ url_for('delete_recipe', recipe_id=r.id) }}">
+                <button class="btn-delete" type="submit">削除</button>
+              </form>
             </div>
-          {% endfor %}
-        {% else %}
-          <div class="empty">投稿はまだありません。</div>
-        {% endif %}
-      </div>
+          </div>
+
+          <div class="meta">
+            所要分数: {{ r.minutes }} 分 / 投稿日: {{ r.created_at }}
+          </div>
+
+          {% if r.description %}
+          <div class="desc">{{ r.description }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty">投稿はまだありません。</div>
+      {% endif %}
     </div>
   </div>
-  <!-- ▲▲ 2カラムレイアウト終了 ▲▲ -->
 
-  <footer>
-    <code>DEBUG={{ debug|lower }}</code> / <code>PORT={{ port }}</code>
-  </footer>
+</div>
+
+
+<!-- ▼▼ 編集モーダル ▼▼ -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <h3>レシピを編集</h3>
+
+    <form id="editForm" method="post">
+      <label>タイトル</label>
+      <input id="edit-title" name="title" type="text" maxlength="200" required>
+
+      <label>所要分数</label>
+      <input id="edit-minutes" name="minutes" type="number" min="1" required>
+
+      <label>説明</label>
+      <textarea id="edit-description" name="description"></textarea>
+
+      <button class="btn" type="submit">更新する</button>
+      <button class="btn-cancel" type="button" onclick="closeEditModal()">キャンセル</button>
+    </form>
+  </div>
+</div>
+
+
+<script>
+function openEditModal(id, title, minutes, description) {
+  document.getElementById("edit-title").value = title;
+  document.getElementById("edit-minutes").value = minutes;
+  document.getElementById("edit-description").value = description;
+
+  document.getElementById("editForm").action = "/update/" + id;
+
+  document.getElementById("editModal").style.display = "block";
+}
+
+function closeEditModal() {
+  document.getElementById("editModal").style.display = "none";
+}
+</script>
+
 </body>
 </html>

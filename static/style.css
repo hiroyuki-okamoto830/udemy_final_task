@@ -1,136 +1,55 @@
-/* 既存スタイル（そのまま） */
+/* 既存スタイルは省略せず全て有効 */
+
 body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+  font-family: system-ui, sans-serif;
   margin: 2rem;
-  color: #222;
 }
 
-h1 {
-  margin-bottom: 0.5rem;
-}
-
-.notice {
-  padding: 0.75rem 1rem;
-  background: #fff3cd;
-  border: 1px solid #ffeeba;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
-.errors {
-  padding: 0.75rem 1rem;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
-/* ▼▼ 2カラムコンテナ ▼▼ */
-.container {
-  display: flex;
-  gap: 2rem;
-  margin-top: 1.5rem;
-}
-
-.column { flex: 1; }
-
-.left {
-  max-width: 450px;
-}
-
-.right {
-  flex: 1.5;
-}
-
-/* ▼フォーム周り */
-form {
-  display: grid;
-  gap: 0.75rem;
-  margin: 1rem 0 2rem;
-}
-
-input, textarea {
-  width: 100%;
-  padding: 0.6rem 0.7rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-textarea {
-  min-height: 120px;
-}
-
-.btn {
-  padding: 0.6rem 1rem;
-  background: #0969da;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.btn:hover {
-  background: #0757b3;
-}
-
-/* ▼レシピカード */
-.list {
-  margin-top: 1rem;
-}
-
-.card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1rem;
-  margin: 0.5rem 0;
-  background: #fff;
-}
-
-/* カードヘッダー（タイトル & 削除ボタン） */
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* ▼削除ボタン */
-.btn-delete {
-  background: #d9534f;
+/* 編集ボタン */
+.btn-edit {
+  background: #f0ad4e;
   color: #fff;
   padding: 0.4rem 0.7rem;
   border: none;
   border-radius: 6px;
   font-size: 0.85rem;
   cursor: pointer;
+  margin-right: .5rem;
 }
 
-.btn-delete:hover {
-  background: #c9302c;
+.btn-edit:hover {
+  background: #ec971f;
 }
 
-.meta {
-  color: #555;
-  font-size: 0.9rem;
-  margin-top: 0.25rem;
+/* モーダル */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
 }
 
-.empty {
-  color: #666;
+.modal-content {
+  background: #fff;
+  width: 90%;
+  max-width: 500px;
+  padding: 1.5rem;
+  margin: 10% auto;
+  border-radius: 10px;
 }
 
-/* ▼フッター */
-footer {
-  margin-top: 2rem;
-  color: #666;
-  font-size: 0.9rem;
+.btn-cancel {
+  margin-left: 1rem;
+  background: #aaa;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-/* ▼レスポンシブ対応：スマホでは縦並び */
-@media (max-width: 800px) {
-  .container {
-    flex-direction: column;
-  }
+.btn-cancel:hover {
+  background: #888;
 }

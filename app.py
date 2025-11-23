@@ -49,14 +49,11 @@ def _to_bool_env(value: Optional[str], default: bool = False) -> bool:
         return default
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     errors: List[str] = []
-    form_values = {
-        "title": "",
-        "minutes": "",
-        "description": "",
-    }
+    form_values = {"title": "", "minutes": "", "description": ""}
 
     if request.method == "POST":
         title = (request.form.get("title") or "").strip()
@@ -67,80 +64,89 @@ def index():
         form_values["minutes"] = minutes_raw
         form_values["description"] = description
 
-        # 入力チェック
+        minutes_val: Optional[int] = None
+        try:
+            minutes_val = int(minutes_raw)
+        except:
+            errors.append("所要分数は整数で入力してください。")
+
+        if minutes_val is not None and minutes_val < 1:
+            errors.append("所要分数は1以上の整数で入力してください。")
+
         if not title:
             errors.append("タイトルは必須です。")
-        if len(title) > 200:
-            errors.append("タイトルは200文字以内で入力してください。")
-
-        minutes_val: Optional[int] = None
-        if not minutes_raw:
-            errors.append("所要分数は必須です。")
-        else:
-            try:
-                minutes_val = int(minutes_raw)
-                if minutes_val < 1:
-                    errors.append("所要分数は1以上の整数で入力してください。")
-            except ValueError:
-                errors.append("所要分数は整数で入力してください。")
 
         if engine is None:
             errors.append("データベースが未設定のため保存できません。")
 
-        if not errors and engine is not None and minutes_val is not None:
-            try:
-                with Session(engine) as session:
-                    item = Recipe(
-                        title=title,
-                        minutes=minutes_val,
-                        description=description or None
-                    )
-                    session.add(item)
-                    session.commit()
-                return redirect(url_for("index"))
-            except Exception:
-                errors.append("保存中にエラーが発生しました。")
+        if not errors:
+            with Session(engine) as session:
+                item = Recipe(title=title, minutes=minutes_val, description=description)
+                session.add(item)
+                session.commit()
+            return redirect(url_for("index"))
 
     recipes: List[Recipe] = []
     if engine is not None:
-        try:
-            with Session(engine) as session:
-                recipes = session.query(Recipe)\
-                    .order_by(Recipe.created_at.desc(), Recipe.id.desc()).all()
-        except Exception:
-            recipes = []
-
-    port = int(os.environ.get("PORT", "8000"))
-    debug = _to_bool_env(os.environ.get("DEBUG"), default=False)
+        with Session(engine) as session:
+            recipes = session.query(Recipe).order_by(
+                Recipe.created_at.desc(), Recipe.id.desc()
+            ).all()
 
     return render_template(
         "index.html",
         errors=errors,
         recipes=recipes,
-        debug=str(debug),
-        port=port,
+        debug="false",
+        port=8000,
         db_ready=(engine is not None),
         form_values=form_values,
     )
 
-# ▼ 削除処理を追加
+
+# ▼ 編集処理
+@app.route("/update/<int:recipe_id>", methods=["POST"])
+def update_recipe(recipe_id: int):
+    if engine is None:
+        return redirect(url_for("index"))
+
+    title = (request.form.get("title") or "").strip()
+    minutes_raw = (request.form.get("minutes") or "").strip()
+    description = (request.form.get("description") or "").strip()
+
+    try:
+        minutes_val = int(minutes_raw)
+    except:
+        return redirect(url_for("index"))
+
+    if minutes_val < 1:
+        return redirect(url_for("index"))
+
+    with Session(engine) as session:
+        item = session.get(Recipe, recipe_id)
+        if item:
+            item.title = title
+            item.minutes = minutes_val
+            item.description = description
+            session.commit()
+
+    return redirect(url_for("index"))
+
+
+# ▼ 削除処理
 @app.route("/delete/<int:recipe_id>", methods=["POST"])
 def delete_recipe(recipe_id: int):
     if engine is None:
         return redirect(url_for("index"))
 
-    try:
-        with Session(engine) as session:
-            item = session.get(Recipe, recipe_id)
-            if item:
-                session.delete(item)
-                session.commit()
-    except Exception:
-        pass
+    with Session(engine) as session:
+        item = session.get(Recipe, recipe_id)
+        if item:
+            session.delete(item)
+            session.commit()
 
     return redirect(url_for("index"))
 
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "8000"))
-    debug = _to_bool_env(os.environ.get("DEBUG"), default=False)
-    app.run(host="0.0.0.0", port=port, debug=debug)
+    app.run(host="0.0.0.0", port=8000, debug=False)
