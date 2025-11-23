@@ -1,8 +1,45 @@
-/* 既存スタイルは省略せず全て有効 */
-
+/* 全体 */
 body {
   font-family: system-ui, sans-serif;
   margin: 2rem;
+}
+
+/* ▼ 2カラムコンテナ --------------- */
+.container {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* 左カラム（投稿フォーム） */
+.column.left {
+  width: 40%;
+  min-width: 280px;
+}
+
+/* 右カラム（レシピ一覧） */
+.column.right {
+  width: 60%;
+}
+
+/* カード */
+.card {
+  border: 1px solid #ddd;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  background: #fafafa;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
 }
 
 /* 編集ボタン */
@@ -19,6 +56,35 @@ body {
 
 .btn-edit:hover {
   background: #ec971f;
+}
+
+/* 削除ボタン */
+.btn-delete {
+  background: #d9534f;
+  color: #fff;
+  padding: 0.4rem 0.7rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background: #c9302c;
+}
+
+/* 投稿フォームのボタン */
+.btn {
+  background: #0275d8;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #025aa5;
 }
 
 /* モーダル */
